@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Counting the Beans — SoD Workload Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:       #2C2A25;
+  --ink-mid:   #5C5849;
+  --ink-light: #8A8578;
+  --ink-faint: #B0AA9E;
+  --paper:     #FFFEF9;
+  --paper-2:   #F5F2EB;
+  --paper-3:   #EAE6DC;
+  --rule:      #D6D0C0;
+  --teal:      #1D9E75;
+  --teal-lt:   #5DCAA5;
+  --teal-ll:   #E1F5EE;
+  --amber:     #854F0B;
+  --amber-lt:  #FAC775;
+  --amber-ll:  #FAEEDA;
+  --coral:     #993C1D;
+  --coral-lt:  #F0997B;
+  --coral-ll:  #FAECE7;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper-2);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── PAGE LAYOUT ── */
+.site-header {
+  background: var(--ink);
+  padding: 2rem 2.5rem 1.75rem;
+  border-bottom: 3px solid var(--teal);
+}
+
+.site-header-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.site-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1.1;
+}
+
+.site-title span { color: var(--teal-lt); }
+
+.site-subtitle {
+  font-size: 12px;
+  color: var(--ink-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.4rem;
+}
+
+.main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 8rem;
+}
+
+/* ── TABS ── */
+.tab-bar {
+  display: flex;
+  border-bottom: 1.5px solid var(--rule);
+  margin-bottom: 2rem;
+  gap: 0;
+}
+
+.tab-btn {
+  padding: 0.6rem 1.4rem;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--ink-light);
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  transition: color 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.tab-btn.active {
+  color: var(--ink);
+  border-bottom-color: var(--teal);
+}
+
+.tab-btn:hover:not(.active) { color: var(--ink); }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── SECTION ANATOMY ── */
+.sub-section { margin-bottom: 2rem; }
+.sub-head { font-size: 13px; font-weight: 500; margin-bottom: 0.3rem; }
+.sub-note { font-size: 12px; color: var(--ink-light); margin-bottom: 0.85rem; line-height: 1.5; }
+
+.divider { border: none; border-top: 1px solid var(--rule); margin: 1.75rem 0; }
+
+/* ── TIER LEGEND ── */
+.tier-legend { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.tier-pill {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  font-family: 'DM Mono', monospace; letter-spacing: 0.02em;
+}
+.tp-l { background: var(--teal-ll);   color: var(--teal);  border: 1px solid #9FE1CB; }
+.tp-m { background: var(--amber-ll);  color: var(--amber); border: 1px solid var(--amber-lt); }
+.tp-h { background: var(--coral-ll);  color: var(--coral); border: 1px solid var(--coral-lt); }
+
+/* ── CHIPS ── */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.85rem; }
+.chip {
+  font-size: 12px; padding: 4px 11px;
+  border-radius: 20px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.chip-l { background: var(--teal-ll);  color: #0F6E56; border: 1px solid #9FE1CB; }
+.chip-m { background: var(--amber-ll); color: var(--amber); border: 1px solid var(--amber-lt); }
+.chip-h { background: var(--coral-ll); color: var(--coral); border: 1px solid var(--coral-lt); }
+.chip-l:hover { background: #9FE1CB; }
+.chip-m:hover { background: var(--amber-lt); }
+.chip-h:hover { background: var(--coral-lt); color: #4A1B0C; }
+
+/* ── BUTTONS ── */
+.add-btn {
+  font-size: 12px; padding: 5px 14px;
+  border: 1px solid var(--rule); border-radius: 8px;
+  background: none; cursor: pointer; color: var(--ink-mid);
+  font-family: 'DM Sans', sans-serif; margin-top: 0.25rem;
+  transition: all 0.12s;
+}
+.add-btn:hover { background: var(--paper-3); border-color: var(--ink-light); color: var(--ink); }
+
+/* ── INPUTS ── */
+.entry-row {
+  display: grid; grid-template-columns: 1fr auto auto;
+  gap: 8px; align-items: start; margin-bottom: 0.65rem;
+}
+.course-row {
+  display: grid; grid-template-columns: 1fr 58px 58px auto;
+  gap: 8px; align-items: center; margin-bottom: 0.65rem;
+}
+.course-header {
+  display: grid; grid-template-columns: 1fr 58px 58px auto;
+  gap: 8px; margin-bottom: 0.35rem;
+}
+.col-lbl { font-size: 11px; color: var(--ink-faint); text-align: center; }
+
+.entry-text, .entry-num {
+  font-size: 13.5px; padding: 7px 10px;
+  border: 1px solid var(--rule); border-radius: 8px;
+  background: var(--paper); color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border-color 0.12s;
+  width: 100%;
+}
+.entry-text:focus, .entry-num:focus { border-color: var(--ink-light); }
+.entry-num { width: 58px; text-align: right; }
+.entry-hint { font-size: 11px; color: var(--ink-faint); text-align: right; margin-top: 2px; font-family: 'DM Mono', monospace; }
+
+.rm-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--ink-faint); font-size: 18px; line-height: 1;
+  padding: 4px; margin-top: 5px;
+  transition: color 0.12s;
+}
+.rm-btn:hover { color: #c0392b; }
+
+/* ── STEPPER ── */
+.stepper-row {
+  display: grid; grid-template-columns: 1fr auto auto auto;
+  gap: 10px; align-items: center; margin-bottom: 0.65rem;
+}
+.stepper-lbl { font-size: 13px; color: var(--ink-mid); }
+.stepper {
+  display: flex; align-items: center; gap: 6px;
+}
+.stp {
+  width: 26px; height: 26px;
+  border: 1px solid var(--rule); border-radius: 7px;
+  background: none; cursor: pointer;
+  font-size: 16px; line-height: 1; color: var(--ink-mid);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.1s;
+}
+.stp:hover { background: var(--paper-3); color: var(--ink); }
+.stp-val { font-size: 14px; min-width: 22px; text-align: center; }
+.stp-wu { font-size: 13px; font-weight: 500; min-width: 54px; text-align: right; white-space: nowrap; font-family: 'DM Mono', monospace; }
+.wu-sm { font-size: 11px; font-weight: 400; color: var(--ink-light); margin-left: 2px; }
+
+/* ── RESULTS ── */
+.result-list { margin-bottom: 0; }
+.result-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 0.4rem 0; border-bottom: 1px solid var(--paper-3);
+  gap: 1rem;
+}
+.result-lbl { font-size: 13px; color: var(--ink-mid); flex: 1; }
+.result-cat { font-size: 11px; color: var(--ink-faint); margin-right: 5px; }
+.result-wu { font-size: 14px; font-weight: 500; white-space: nowrap; font-family: 'DM Mono', monospace; }
+
+.total-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 0.85rem 0 0; margin-top: 0.25rem;
+}
+.total-lbl { font-size: 14px; font-weight: 500; }
+.total-val { font-family: 'Playfair Display', serif; font-size: 1.75rem; }
+.total-unit { font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--ink-light); margin-left: 4px; }
+
+/* ── SUMMARY ── */
+.summary-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-bottom: 1.75rem;
+}
+.sum-card {
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 1rem 1.1rem;
+}
+.sum-lbl { font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 0.35rem; }
+.sum-val { font-family: 'Playfair Display', serif; font-size: 1.6rem; }
+.sum-sub { font-size: 12px; color: var(--ink-light); margin-top: 2px; font-family: 'DM Mono', monospace; }
+
+.progress-wrap { margin-bottom: 1.75rem; }
+.progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-light); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+.progress-track {
+  height: 9px; background: var(--paper-3);
+  border-radius: 5px; overflow: hidden;
+  display: flex;
+}
+.prog-seg { height: 100%; transition: width 0.35s ease; }
+.prog-t { background: var(--teal); }
+.prog-r { background: #378ADD; }
+.prog-s { background: #D85A30; }
+.prog-legend { display: flex; gap: 1.25rem; margin-top: 7px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-light); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.note-box {
+  border-left: 2.5px solid var(--rule); padding: 0.7rem 1rem;
+  margin-top: 1.5rem; font-size: 12px;
+  color: var(--ink-light); line-height: 1.6;
+}
+
+.cap-badge {
+  font-size: 11px; color: var(--ink-mid);
+  background: var(--paper-3); border-radius: 6px;
+  padding: 3px 10px; display: inline-block;
+  margin-bottom: 0.75rem; font-family: 'DM Mono', monospace;
+}
+
+/* ── BEAN COUNTER FLOAT ── */
+#bean-launcher {
+  position: fixed; bottom: 1.75rem; right: 1.75rem;
+  z-index: 100;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+}
+
+.bean-bubble-hint {
+  background: var(--ink); color: var(--paper);
+  font-size: 12px; padding: 6px 13px;
+  border-radius: 14px 14px 4px 14px;
+  white-space: nowrap; pointer-events: none;
+  opacity: 1; transition: opacity 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.bean-bubble-hint.hidden { opacity: 0; }
+
+.bean-float-btn {
+  width: 62px; height: 62px;
+  background: var(--ink);
+  border: none; border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+  transition: transform 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+.bean-float-btn:hover {
+  transform: scale(1.07);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.28);
+}
+.bean-float-btn svg { width: 40px; height: 40px; }
+
+/* bean animations */
+@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+@keyframes blink { 0%,92%,100%{transform:scaleY(1)} 95%{transform:scaleY(0.08)} }
+@keyframes wiggle { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-4px) rotate(2deg)} }
+.bean-body-g { animation: bob 3s ease-in-out infinite; transform-origin: center bottom; }
+.bean-body-g.thinking { animation: wiggle 0.55s ease-in-out infinite; }
+.bean-eyes-g { animation: blink 4s ease-in-out infinite; transform-origin: center; }
+
+/* ── CHAT PANEL ── */
+#chat-panel {
+  position: fixed; bottom: 1.75rem; right: 1.75rem;
+  width: 340px; max-height: 520px;
+  background: var(--paper);
+  border: 1.5px solid var(--rule);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.16), 4px 4px 0 var(--rule);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  overflow: hidden;
+  transform: scale(0.85) translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.22s cubic-bezier(.34,1.4,.64,1), opacity 0.18s ease;
+  transform-origin: bottom right;
+}
+#chat-panel.open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.chat-header {
+  background: var(--ink);
+  padding: 0.9rem 1.1rem;
+  display: flex; align-items: center; gap: 0.75rem;
+  flex-shrink: 0;
+}
+.chat-header-text { flex: 1; }
+.chat-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; color: var(--paper); line-height: 1.2;
+}
+.chat-subtitle { font-size: 10px; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
+.chat-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--ink-light); font-size: 20px; line-height: 1;
+  padding: 2px 4px; transition: color 0.12s;
+}
+.chat-close:hover { color: var(--paper); }
+.status-dot-sm { width: 7px; height: 7px; background: var(--teal-lt); border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 3px rgba(93,202,165,.2); }
+
+.chat-messages {
+  flex: 1; overflow-y: auto;
+  padding: 1rem 1rem 0.5rem;
+  display: flex; flex-direction: column; gap: 0.75rem;
+  scroll-behavior: smooth;
+}
+.chat-messages::-webkit-scrollbar { width: 3px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
+
+.msg {
+  max-width: 90%; font-size: 13px; line-height: 1.55;
+  padding: 0.6rem 0.85rem; border-radius: 13px;
+}
+.msg-bean { background: var(--ink); color: var(--paper); border-bottom-left-radius: 3px; align-self: flex-start; }
+.msg-user { background: var(--paper-3); color: var(--ink); border-bottom-right-radius: 3px; align-self: flex-end; }
+.msg-bean strong { color: var(--teal-lt); font-weight: 500; }
+.msg-bean em { color: var(--amber-lt); font-style: normal; }
+
+.typing-row { display: none; align-self: flex-start; gap: 4px; align-items: center; padding: 0.6rem 0.85rem; background: var(--ink); border-radius: 13px 13px 13px 3px; }
+.typing-row.show { display: flex; }
+.t-dot { width: 5px; height: 5px; background: var(--ink-light); border-radius: 50%; animation: tdot 1.1s ease-in-out infinite; }
+.t-dot:nth-child(2) { animation-delay: .18s; }
+.t-dot:nth-child(3) { animation-delay: .36s; }
+@keyframes tdot { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-5px);opacity:1} }
+
+.chat-sugs {
+  padding: 0.5rem 1rem 0;
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.sug {
+  font-size: 11.5px; padding: 3px 9px;
+  border: 1px solid var(--rule); border-radius: 20px;
+  cursor: pointer; background: var(--paper-2); color: var(--ink-mid);
+  font-family: 'DM Sans', sans-serif; transition: all 0.12s; white-space: nowrap;
+}
+.sug:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.chat-input-row {
+  padding: 0.65rem 1rem 1rem;
+  display: flex; gap: 7px; align-items: flex-end;
+  border-top: 1px solid var(--paper-3); margin-top: 0.5rem;
+  flex-shrink: 0;
+}
+.chat-textarea {
+  flex: 1; font-size: 13px; font-family: 'DM Sans', sans-serif;
+  padding: 8px 11px; border: 1px solid var(--rule); border-radius: 10px;
+  background: var(--paper-2); color: var(--ink);
+  resize: none; outline: none; line-height: 1.45;
+  min-height: 36px; max-height: 90px; overflow-y: auto;
+  transition: border-color 0.12s;
+}
+.chat-textarea:focus { border-color: var(--ink-light); }
+.chat-textarea::placeholder { color: var(--ink-faint); }
+.chat-send {
+  width: 36px; height: 36px; background: var(--ink);
+  border: none; border-radius: 9px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.12s, transform 0.1s;
+}
+.chat-send:hover { background: #3D3A33; }
+.chat-send:active { transform: scale(0.95); }
+.chat-send:disabled { background: var(--ink-faint); cursor: not-allowed; }
+.chat-send svg { width: 15px; height: 15px; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="site-header">
+  <div class="site-header-inner">
+    <div>
+      <h1 class="site-title">Counting the <span>Beans</span></h1>
+      <p class="site-subtitle">Myron E. Ullman, Jr. School of Design · DAAP · UC</p>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MAIN CALCULATOR ══ -->
+<main class="main">
+
+  <nav class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('teaching')">Teaching</button>
+    <button class="tab-btn" onclick="switchTab('research')">Research</button>
+    <button class="tab-btn" onclick="switchTab('service')">Service</button>
+    <button class="tab-btn" onclick="switchTab('summary')">Summary</button>
+  </nav>
+
+  <!-- ── TEACHING ── -->
+  <section id="panel-teaching" class="panel active">
+
+    <div class="sub-section">
+      <div class="sub-head">Courses</div>
+      <div class="sub-note">1 WU = 1 credit hour.</div>
+      <div class="course-header">
+        <span class="col-lbl" style="text-align:left">Course / assignment</span>
+        <span class="col-lbl">Credits</span>
+        <span class="col-lbl">Sections</span>
+        <span></span>
+      </div>
+      <div id="teaching-list"></div>
+      <button class="add-btn" onclick="addCourse('teaching')">+ add course</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">MDes thesis supervision</div>
+      <div class="sub-note">Fixed per policy — thesis chair = 1 WU per student; committee member or advisor = 0.5 WU per student.</div>
+      <div class="stepper-row">
+        <span class="stepper-lbl">Thesis chair</span>
+        <div class="stepper"><button class="stp" onclick="adjFixed('mdes_chair',-1)">−</button><span class="stp-val" id="v-mdes_chair">0</span><button class="stp" onclick="adjFixed('mdes_chair',1)">+</button></div>
+        <span class="stp-wu" id="w-mdes_chair">0.00<span class="wu-sm">WU</span></span>
+        <span></span>
+      </div>
+      <div class="stepper-row">
+        <span class="stepper-lbl">Committee member / advisor</span>
+        <div class="stepper"><button class="stp" onclick="adjFixed('mdes_member',-1)">−</button><span class="stp-val" id="v-mdes_member">0</span><button class="stp" onclick="adjFixed('mdes_member',1)">+</button></div>
+        <span class="stp-wu" id="w-mdes_member">0.00<span class="wu-sm">WU</span></span>
+        <span></span>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Study abroad &amp; honors courses</div>
+      <div class="sub-note">1 WU = 1 credit hour. Note: overages in study abroad don't qualify for standard overage compensation.</div>
+      <div class="course-header">
+        <span class="col-lbl" style="text-align:left">Course / program</span>
+        <span class="col-lbl">Credits</span>
+        <span class="col-lbl">Sections</span>
+        <span></span>
+      </div>
+      <div id="abroad-list"></div>
+      <button class="add-btn" onclick="addCourse('abroad')">+ add study abroad / honors course</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Other teaching (hours-based)</div>
+      <div class="sub-note">Special assignments not covered above — enter estimated hours (÷ 48.5 = WU estimate).</div>
+      <div id="tother-list"></div>
+      <button class="add-btn" onclick="addHours('tother','tother-list')">+ add other teaching</button>
+    </div>
+
+    <hr class="divider">
+    <div id="teaching-results"></div>
+    <div class="note-box">Teaching overages above your baseline count toward a 1–3 WU course release, additional compensation, or accrual to the following AY. All overages and accruals must be documented on the APR.</div>
+  </section>
+
+  <!-- ── RESEARCH ── -->
+  <section id="panel-research" class="panel">
+    <div class="tier-legend">
+      <span class="tier-pill tp-l">L = 1.25 WU · ~59 hrs</span>
+      <span class="tier-pill tp-m">M = 2.50 WU · ~118 hrs</span>
+      <span class="tier-pill tp-h">H = 3.75 WU · ~177 hrs</span>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-head">Active research &amp; creative process</div>
+      <div class="sub-note">The sustained generative work underlying everything — fieldwork, studio experiments, iterative making, writing in progress. Covers the policy's open "research activities" and "creative activities" rows.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('rprocess','rprocess-list','Active research / studio work (low)',59)">Research process (L)</span>
+        <span class="chip chip-m" onclick="qAdd('rprocess','rprocess-list','Active research / studio work (medium)',118)">Research process (M)</span>
+        <span class="chip chip-h" onclick="qAdd('rprocess','rprocess-list','Active research / studio work (high)',177)">Research process (H)</span>
+        <span class="chip chip-l" onclick="qAdd('rprocess','rprocess-list','Creative / studio practice (low)',59)">Creative process (L)</span>
+        <span class="chip chip-m" onclick="qAdd('rprocess','rprocess-list','Creative / studio practice (medium)',118)">Creative process (M)</span>
+        <span class="chip chip-h" onclick="qAdd('rprocess','rprocess-list','Creative / studio practice (high)',177)">Creative process (H)</span>
+        <span class="chip chip-l" onclick="qAdd('rprocess','rprocess-list','Professional development (research-facing)',30)">Prof development (L)</span>
+      </div>
+      <div id="rprocess-list"></div>
+      <button class="add-btn" onclick="addHours('rprocess','rprocess-list')">+ add process activity</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Grant proposals &amp; administration</div>
+      <div class="sub-note">Effort toward securing or managing funding — separate from the research work the grant supports.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('rgrant','rgrant-list','Internal grant proposal',59)">Internal grant (L)</span>
+        <span class="chip chip-m" onclick="qAdd('rgrant','rgrant-list','Co-PI / team grant proposal',118)">Co-PI grant (M)</span>
+        <span class="chip chip-h" onclick="qAdd('rgrant','rgrant-list','PI federal / large external grant',177)">PI federal grant (H)</span>
+        <span class="chip chip-m" onclick="qAdd('rgrant','rgrant-list','Grant administration (co-PI)',118)">Grant admin co-PI (M)</span>
+        <span class="chip chip-h" onclick="qAdd('rgrant','rgrant-list','Grant administration (PI)',177)">Grant admin PI (H)</span>
+      </div>
+      <div id="rgrant-list"></div>
+      <button class="add-btn" onclick="addHours('rgrant','rgrant-list')">+ add grant activity</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Scholarly outputs</div>
+      <div class="sub-note">Tiers follow the policy directly. Regional vs. national/international conference papers are different tiers. Standard peer-reviewed journal articles = Medium; high-impact journal articles = High.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('routput','routput-list','Conference paper / invited lecture (regional)',59)">Conference paper — regional (L)</span>
+        <span class="chip chip-l" onclick="qAdd('routput','routput-list','Poster presentation',59)">Poster presentation (L)</span>
+        <span class="chip chip-l" onclick="qAdd('routput','routput-list','Published conference proceedings',59)">Published proceedings (L)</span>
+        <span class="chip chip-l" onclick="qAdd('routput','routput-list','Published essay or short article (non-peer reviewed)',59)">Essay / short article, non-peer reviewed (L)</span>
+        <span class="chip chip-l" onclick="qAdd('routput','routput-list','Peer-reviewed short-form article (open space, book review, short essay)',59)">Peer-reviewed short-form (L)</span>
+        <span class="chip chip-m" onclick="qAdd('routput','routput-list','Conference paper / invited lecture (national / international)',118)">Conference paper — national/intl (M)</span>
+        <span class="chip chip-m" onclick="qAdd('routput','routput-list','Article or essay in exhibition catalog',118)">Exhibition catalog essay (M)</span>
+        <span class="chip chip-m" onclick="qAdd('routput','routput-list','Book chapter in edited book',118)">Book chapter (M)</span>
+        <span class="chip chip-m" onclick="qAdd('routput','routput-list','Peer-reviewed journal article',118)">Peer-reviewed journal article (M)</span>
+        <span class="chip chip-m" onclick="qAdd('routput','routput-list','Curating / co-curating exhibition',118)">Curating exhibition (M)</span>
+        <span class="chip chip-m" onclick="qAdd('routput','routput-list','Special journal issue editor / co-editor',118)">Special journal issue editor (M)</span>
+        <span class="chip chip-m" onclick="qAdd('routput','routput-list','Scholarly journal editor / co-editor',118)">Scholarly journal editor (M)</span>
+        <span class="chip chip-h" onclick="qAdd('routput','routput-list','Single-author or co-authored book',177)">Single-author book (H)</span>
+        <span class="chip chip-h" onclick="qAdd('routput','routput-list','Edited or co-edited book',177)">Edited book (H)</span>
+        <span class="chip chip-h" onclick="qAdd('routput','routput-list','Article in high-impact academic journal',177)">High-impact journal article (H)</span>
+        <span class="chip chip-h" onclick="qAdd('routput','routput-list','Keynote presentation (national / international)',177)">Keynote — national/intl (H)</span>
+      </div>
+      <div id="routput-list"></div>
+      <button class="add-btn" onclick="addHours('routput','routput-list')">+ add custom output</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Creative outputs &amp; exhibitions</div>
+      <div class="sub-note">Completed or exhibited outcomes — distinct from creative process work logged above.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('rcreative','rcreative-list','Exhibition participation',59)">Exhibition participation (L)</span>
+        <span class="chip chip-m" onclick="qAdd('rcreative','rcreative-list','Leading / planning exhibition (medium)',118)">Lead exhibition (M)</span>
+        <span class="chip chip-h" onclick="qAdd('rcreative','rcreative-list','Leading / planning exhibition (high)',177)">Lead exhibition (H)</span>
+        <span class="chip chip-l" onclick="qAdd('rcreative','rcreative-list','Creative outcome (low effort)',59)">Creative outcome (L)</span>
+        <span class="chip chip-m" onclick="qAdd('rcreative','rcreative-list','Creative outcome (medium effort)',118)">Creative outcome (M)</span>
+        <span class="chip chip-h" onclick="qAdd('rcreative','rcreative-list','Creative outcome (high effort)',177)">Creative outcome (H)</span>
+      </div>
+      <div id="rcreative-list"></div>
+      <button class="add-btn" onclick="addHours('rcreative','rcreative-list')">+ add creative output</button>
+    </div>
+
+    <hr class="divider">
+    <div id="research-results"></div>
+    <div class="note-box">TT and tenured faculty: 9–12 WUs expected (30–40% of total). Professional development from this bucket capped at 1.5 WUs/AY. Activities can span multiple years — log only hours spent this AY.</div>
+  </section>
+
+  <!-- ── SERVICE ── -->
+  <section id="panel-service" class="panel">
+    <div class="tier-legend">
+      <span class="tier-pill tp-l">L = 0.625 WU · ~30 hrs</span>
+      <span class="tier-pill tp-m">M = 1.25 WU · ~61 hrs</span>
+      <span class="tier-pill tp-h">H = 1.5–2.5 WU · ~73–121 hrs</span>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-head">Service to the university</div>
+      <div class="sub-note">UC-level committees, task forces, Faculty Senate, AAUP.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('svcuniv','svcuniv-list','University committee member (less active)',30)">Committee member (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcuniv','svcuniv-list','University committee member (more active)',61)">Committee member (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svcuniv','svcuniv-list','University committee chair',97)">Committee chair (H)</span>
+        <span class="chip chip-l" onclick="qAdd('svcuniv','svcuniv-list','University-level task force (less active)',30)">Task force (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcuniv','svcuniv-list','University-level task force (more active)',61)">Task force (M)</span>
+        <span class="chip chip-m" onclick="qAdd('svcuniv','svcuniv-list','Faculty Senate',61)">Faculty Senate (M)</span>
+        <span class="chip chip-m" onclick="qAdd('svcuniv','svcuniv-list','AAUP representative',61)">AAUP rep (M)</span>
+      </div>
+      <div id="svcuniv-list"></div>
+      <button class="add-btn" onclick="addHours('svcuniv','svcuniv-list')">+ add university service</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Service to the college (DAAP)</div>
+      <div class="sub-note">DAAP-level committees, reviews, and task forces.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP committee (less active)',30)">DAAP committee (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP committee (more active)',49)">DAAP committee (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP committee / task force (high)',97)">DAAP committee (H)</span>
+        <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP RPT committee (4 or fewer cases)',49)">DAAP RPT ≤4 (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP RPT committee (5 or more cases)',97)">DAAP RPT 5+ (H)</span>
+        <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Dean Review Committee',49)">Dean Review (M)</span>
+        <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Search Committee member',49)">Search committee (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Search Committee chair',97)">Search chair (H)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Works Steering Committee',97)">Steering committee (H)</span>
+        <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Ad Hoc Committee (handbook, bylaws)',49)">Ad hoc committee (M)</span>
+        <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP Equity and Inclusion',30)">Equity &amp; Inclusion (L)</span>
+        <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP Student Affairs / Library / Gallery',30)">Student affairs etc. (L)</span>
+      </div>
+      <div id="svccoll-list"></div>
+      <button class="add-btn" onclick="addHours('svccoll','svccoll-list')">+ add college service</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Service to the school</div>
+      <div class="sub-note">SoD-level work. Minimum 1.5 WUs required (TT) or 2.5 WUs (tenured &amp; PoP) from this category.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','Portfolio reviews',30)">Portfolio reviews (L)</span>
+        <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','Faculty mentorship (less involvement)',30)">Mentorship (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','Faculty mentorship (more involvement)',61)">Mentorship (M)</span>
+        <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','School RPT committee (3 or fewer cases)',61)">School RPT ≤3 (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','School RPT committee (4 or more cases)',97)">School RPT 4+ (H)</span>
+        <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','School Faculty Search Committee member',61)">Search committee (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','School Faculty Search Committee chair',97)">Search chair (H)</span>
+        <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','School committee / task force (less active)',61)">School committee (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','School committee / task force (more active)',97)">School committee (H)</span>
+        <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','School initiative / project leadership',97)">Initiative leadership (H)</span>
+        <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','Recruitment and promotion (low)',30)">Recruitment (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','Recruitment and promotion (more active)',61)">Recruitment (M)</span>
+      </div>
+      <div id="svcschool-list"></div>
+      <button class="add-btn" onclick="addHours('svcschool','svcschool-list')">+ add school service</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Service to the program</div>
+      <div class="sub-note">Program-level committees, course leadership, student references.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('svcprog','svcprog-list','Program committee / task / initiative',30)">Program committee (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprog','svcprog-list','Program initiative / project leadership',61)">Program leadership (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprog','svcprog-list','Lab management',97)">Lab management (H)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprog','svcprog-list','Course leadership (multi-section)',61)">Course leadership (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprog','svcprog-list','Course leadership: developing a new course',97)">New course dev (H)</span>
+        <span class="chip chip-l" onclick="qAdd('svcprog','svcprog-list','Student references / recommendations (fewer than 10)',30)">Student refs &lt;10 (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprog','svcprog-list','Student references / recommendations (10 or more)',61)">Student refs 10+ (M)</span>
+      </div>
+      <div id="svcprog-list"></div>
+      <button class="add-btn" onclick="addHours('svcprog','svcprog-list')">+ add program service</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Professional &amp; community service</div>
+      <div class="sub-note">Service to the field, discipline, and broader community.</div>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Professional organization committee member',30)">Prof org committee (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprof','svcprof-list','Professional organization leadership',61)">Prof org leadership (M)</span>
+        <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Community organization committee member',30)">Community committee (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprof','svcprof-list','Community organization leadership',61)">Community leadership (M)</span>
+        <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Editorial board member (journal or book series)',30)">Editorial board (L)</span>
+        <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Peer review of academic journal articles',30)">Journal peer review (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprof','svcprof-list','Review of book manuscript for publisher',61)">Book manuscript review (M)</span>
+      </div>
+      <div id="svcprof-list"></div>
+      <button class="add-btn" onclick="addHours('svcprof','svcprof-list')">+ add professional / community service</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Industry engagement &amp; professional practice</div>
+      <div class="sub-note">Required for Professors of Practice; optional for others. Uses research-tier WU values (L=1.25, M=2.5, H=3.75).</div>
+      <span class="cap-badge">Cap: 7.2 WU / AY</span>
+      <div class="chips">
+        <span class="chip chip-l" onclick="qAdd('svcind','svcind-list','Industry engagement (low)',59)">Industry engagement (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcind','svcind-list','Industry engagement (medium)',118)">Industry engagement (M)</span>
+        <span class="chip chip-h" onclick="qAdd('svcind','svcind-list','Industry engagement (high)',177)">Industry engagement (H)</span>
+        <span class="chip chip-l" onclick="qAdd('svcind','svcind-list','Industry consultation (low)',59)">Consultation (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcind','svcind-list','Industry consultation (medium)',118)">Consultation (M)</span>
+        <span class="chip chip-l" onclick="qAdd('svcind','svcind-list','Professional practice knowledge generation (low)',59)">Knowledge gen (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcind','svcind-list','Professional practice knowledge generation (medium)',118)">Knowledge gen (M)</span>
+        <span class="chip chip-l" onclick="qAdd('svcind','svcind-list','Professional practice knowledge dissemination (low)',59)">Knowledge dissem (L)</span>
+        <span class="chip chip-m" onclick="qAdd('svcind','svcind-list','Professional practice knowledge dissemination (medium)',118)">Knowledge dissem (M)</span>
+      </div>
+      <div id="svcind-list"></div>
+      <button class="add-btn" onclick="addHours('svcind','svcind-list')">+ add industry engagement</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="sub-section">
+      <div class="sub-head">Professional development (service-facing)</div>
+      <div class="sub-note">Development oriented toward service, leadership, or professional expertise.</div>
+      <span class="cap-badge">Cap: 1 WU / AY</span>
+      <div id="svcpd-list"></div>
+      <button class="add-btn" onclick="addHours('svcpd','svcpd-list')">+ add professional development</button>
+    </div>
+
+    <hr class="divider">
+    <div id="service-results"></div>
+    <div class="note-box">TT: minimum 1.5 WUs to the school. Tenured &amp; PoP: minimum 2.5 WUs. Expected total: 3–6 WUs for TT/tenured (5–20% of load). Industry engagement capped at 7.2 WUs/AY; service-facing prof dev capped at 1 WU/AY.</div>
+  </section>
+
+  <!-- ── SUMMARY ── -->
+  <section id="panel-summary" class="panel">
+    <div class="summary-grid" id="sum-cards"></div>
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span>Distribution</span>
+        <span id="baseline-note"></span>
+      </div>
+      <div class="progress-track" id="prog-bar"></div>
+      <div class="prog-legend">
+        <div class="leg"><div class="leg-dot" style="background:var(--teal)"></div>Teaching</div>
+        <div class="leg"><div class="leg-dot" style="background:#378ADD"></div>Research</div>
+        <div class="leg"><div class="leg-dot" style="background:#D85A30"></div>Service</div>
+      </div>
+    </div>
+    <hr class="divider">
+    <div id="sum-detail"></div>
+    <div class="note-box">SoD baseline: 30 WUs/year. Teaching 50–60% (15 WU), research 30–40% (9–12 WU), service 5–20% (3–6 WU) for TT and tenured faculty. The 47–50 hour per WU convention is informal — your School Director is the authoritative source.</div>
+  </section>
+
+</main>
+
+<!-- ══ BEAN COUNTER FLOAT ══ -->
+<div id="bean-launcher">
+  <div class="bean-bubble-hint" id="bean-hint">Ask Bean Counter ☝</div>
+  <button class="bean-float-btn" onclick="toggleChat()" title="Open Bean Counter">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g class="bean-body-g">
+        <ellipse cx="20" cy="23" rx="12" ry="14" fill="#5DCAA5"/>
+        <path d="M20 9 Q15 17 15 23 Q15 30 20 37" stroke="#1D9E75" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <ellipse cx="13.5" cy="26" rx="2.8" ry="2" fill="#9FE1CB" opacity="0.6"/>
+        <ellipse cx="26.5" cy="26" rx="2.8" ry="2" fill="#9FE1CB" opacity="0.6"/>
+        <g class="bean-eyes-g">
+          <ellipse cx="16.5" cy="21" rx="1.8" ry="2.2" fill="#2C2A25"/>
+          <ellipse cx="23.5" cy="21" rx="1.8" ry="2.2" fill="#2C2A25"/>
+          <circle cx="17.1" cy="20.1" r="0.65" fill="white"/>
+          <circle cx="24.1" cy="20.1" r="0.65" fill="white"/>
+        </g>
+        <path d="M16 27 Q20 30.5 24 27" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <rect x="14" y="18.5" width="4.5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1" fill="none"/>
+        <rect x="21.5" y="18.5" width="4.5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1" fill="none"/>
+        <line x1="18.5" y1="20.8" x2="21.5" y2="20.8" stroke="#FAC775" stroke-width="1"/>
+      </g>
+    </svg>
+  </button>
+</div>
+
+<!-- ══ CHAT PANEL ══ -->
+<div id="chat-panel">
+  <div class="chat-header">
+    <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+      <g class="bean-body-g" id="chat-bean-body">
+        <ellipse cx="20" cy="23" rx="12" ry="14" fill="#5DCAA5"/>
+        <path d="M20 9 Q15 17 15 23 Q15 30 20 37" stroke="#1D9E75" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <g class="bean-eyes-g">
+          <ellipse cx="16.5" cy="21" rx="1.8" ry="2.2" fill="#2C2A25"/>
+          <ellipse cx="23.5" cy="21" rx="1.8" ry="2.2" fill="#2C2A25"/>
+          <circle cx="17.1" cy="20.1" r="0.65" fill="white"/>
+          <circle cx="24.1" cy="20.1" r="0.65" fill="white"/>
+        </g>
+        <path d="M16 27 Q20 30.5 24 27" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <rect x="14" y="18.5" width="4.5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1" fill="none"/>
+        <rect x="21.5" y="18.5" width="4.5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1" fill="none"/>
+        <line x1="18.5" y1="20.8" x2="21.5" y2="20.8" stroke="#FAC775" stroke-width="1"/>
+      </g>
+    </svg>
+    <div class="chat-header-text">
+      <div class="chat-name">Bean Counter</div>
+      <div class="chat-subtitle">SoD Workload Policy · DAAP</div>
+    </div>
+    <div class="status-dot-sm"></div>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+
+  <div class="chat-messages" id="chat-msgs">
+    <div class="msg msg-bean">Hey! I'm <strong>Bean Counter</strong> — ask me anything about the SoD Workload Policy: tiers, WU estimates, what counts where, or whether that committee is actually worth your time. 🫘</div>
+  </div>
+  <div class="typing-row" id="typing-row">
+    <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+  </div>
+
+  <div class="chat-sugs" id="chat-sugs">
+    <span class="sug" onclick="sendSug(this)">What tier is a book chapter?</span>
+    <span class="sug" onclick="sendSug(this)">MDes chair vs committee member?</span>
+    <span class="sug" onclick="sendSug(this)">How does service get counted?</span>
+    <span class="sug" onclick="sendSug(this)">Regional vs national conference paper?</span>
+  </div>
+
+  <div class="chat-input-row">
+    <textarea class="chat-textarea" id="chat-input" placeholder="Ask anything…" rows="1"></textarea>
+    <button class="chat-send" id="chat-send-btn" onclick="sendMsg()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M14 8L2 2l3 6-3 6 12-6z" fill="#F5F2EB"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════
+   CALCULATOR STATE
+════════════════════════════════ */
+const HPW = 48.5; // hours per WU
+
+const SVC_BUCKETS = ['svcuniv','svccoll','svcschool','svcprog','svcprof','svcind','svcpd'];
+const SVC_LABELS  = {svcuniv:'University',svccoll:'College',svcschool:'School',svcprog:'Program',svcprof:'Prof & Community',svcind:'Industry',svcpd:'Prof Dev'};
+const RES_BUCKETS = ['rprocess','rgrant','routput','rcreative'];
+
+let S = {
+  teaching:[], abroad:[], tother:[],
+  rprocess:[], rgrant:[], routput:[], rcreative:[],
+  ...Object.fromEntries([...SVC_BUCKETS].map(k=>[k,[]]))
+};
+let fixed = { mdes_chair:0, mdes_member:0 };
+let ctr = {};
+['teaching','abroad','tother',...RES_BUCKETS,...SVC_BUCKETS].forEach(k=>ctr[k]=0);
+
+const wu  = h => Math.round((h/HPW)*100)/100;
+const fmt = n => n.toFixed(2);
+
+/* ── TABS ── */
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>
+    b.classList.toggle('active',['teaching','research','service','summary'][i]===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='summary') renderSummary();
+}
+
+/* ── FIXED (MDes) ── */
+function adjFixed(key,d) {
+  fixed[key]=Math.max(0,fixed[key]+d);
+  const vals={mdes_chair:1,mdes_member:0.5};
+  document.getElementById('v-'+key).textContent=fixed[key];
+  document.getElementById('w-'+key).innerHTML=fmt(fixed[key]*vals[key])+'<span class="wu-sm">WU</span>';
+  renderTeaching();
+}
+
+/* ── COURSE ROWS ── */
+function addCourse(bucket,desc='',credits=3,sections=1) {
+  const id=bucket+(ctr[bucket]++);
+  S[bucket].push({id,desc,credits,sections});
+  renderCourseList(bucket); renderTeaching();
+}
+function renderCourseList(bucket) {
+  const listId = bucket===`teaching`?`teaching-list`:`abroad-list`;
+  const el=document.getElementById(listId); if(!el) return; el.innerHTML='';
+  S[bucket].forEach(r=>{
+    const div=document.createElement('div'); div.className='course-row';
+    div.innerHTML=`<input class="entry-text" value="${r.desc}" placeholder="e.g. Studio Foundations" oninput="updCourse('${bucket}','${r.id}','desc',this.value)"><input class="entry-num" type="number" min="0" max="6" step="1" value="${r.credits}" oninput="updCourse('${bucket}','${r.id}','credits',+this.value)"><input class="entry-num" type="number" min="1" max="8" step="1" value="${r.sections}" oninput="updCourse('${bucket}','${r.id}','sections',+this.value)"><button class="rm-btn" onclick="rmCourse('${bucket}','${r.id}')">×</button>`;
+    el.appendChild(div);
+  });
+}
+function updCourse(bucket,id,field,val){ const r=S[bucket].find(x=>x.id===id); if(r){r[field]=val; renderTeaching();} }
+function rmCourse(bucket,id){ S[bucket]=S[bucket].filter(r=>r.id!==id); renderCourseList(bucket); renderTeaching(); }
+
+/* ── HOURS ROWS ── */
+function addHours(bucket,listId,desc='',hours=0) {
+  const id=bucket+(ctr[bucket]++);
+  S[bucket].push({id,desc,hours});
+  renderHoursList(bucket,listId); reRender(bucket);
+}
+function qAdd(bucket,listId,desc,hours){ addHours(bucket,listId,desc,hours); }
+
+function renderHoursList(bucket,listId) {
+  const el=document.getElementById(listId); if(!el) return; el.innerHTML='';
+  S[bucket].forEach(r=>{
+    const hid='h_'+r.id; const est=r.hours>0?`≈ ${fmt(wu(r.hours))} WU`:'';
+    const div=document.createElement('div'); div.className='entry-row';
+    div.innerHTML=`<input class="entry-text" value="${r.desc}" placeholder="Describe the activity" oninput="updItem('${bucket}','${r.id}','desc',this.value)"><div><input class="entry-num" type="number" min="0" step="1" value="${r.hours}" oninput="updItem('${bucket}','${r.id}','hours',+this.value)"><div class="entry-hint" id="${hid}">${est}</div></div><button class="rm-btn" onclick="rmItem('${bucket}','${r.id}','${listId}')">×</button>`;
+    el.appendChild(div);
+    el.lastChild.querySelector('input[type=number]').addEventListener('input',function(){
+      document.getElementById(hid).textContent=this.value>0?'≈ '+fmt(wu(+this.value))+' WU':'';
+    });
+  });
+}
+function updItem(bucket,id,field,val){ const r=S[bucket].find(x=>x.id===id); if(!r)return; r[field]=val; reRender(bucket); }
+function rmItem(bucket,id,listId){ S[bucket]=S[bucket].filter(r=>r.id!==id); renderHoursList(bucket,listId); reRender(bucket); }
+function reRender(bucket){
+  if(bucket==='tother') renderTeaching();
+  else if(RES_BUCKETS.includes(bucket)) renderResearch();
+  else renderService();
+}
+
+/* ── WU CALCS ── */
+function tWU(){
+  const c=S.teaching.reduce((s,r)=>s+(r.credits*r.sections),0);
+  const a=S.abroad.reduce((s,r)=>s+(r.credits*r.sections),0);
+  const mc=fixed.mdes_chair; const mm=fixed.mdes_member*0.5;
+  const o=S.tother.reduce((s,r)=>s+wu(r.hours),0);
+  return{c,a,mc,mm,o,total:c+a+mc+mm+o};
+}
+function rWU(){ return RES_BUCKETS.reduce((s,b)=>s+S[b].reduce((t,r)=>t+wu(r.hours),0),0); }
+function sWU(){ return SVC_BUCKETS.reduce((s,b)=>s+S[b].reduce((t,r)=>t+wu(r.hours),0),0); }
+
+/* ── RENDER RESULTS ── */
+function mkRow(lbl,val,cat=''){
+  return `<div class="result-row"><span class="result-lbl">${cat?`<span class="result-cat">${cat}</span>`:''}${lbl}</span><span class="result-wu">${val} <span class="wu-sm">WU</span></span></div>`;
+}
+
+function renderTeaching(){
+  const t=tWU(); let h='';
+  S.teaching.forEach(r=>{ h+=mkRow(`${r.desc||'Unnamed course'} (${r.credits} cr × ${r.sections})`,r.credits*r.sections); });
+  if(fixed.mdes_chair>0)  h+=mkRow(`MDes thesis chair (${fixed.mdes_chair} × 1 WU)`,fmt(fixed.mdes_chair));
+  if(fixed.mdes_member>0) h+=mkRow(`MDes committee member/advisor (${fixed.mdes_member} × 0.5 WU)`,fmt(fixed.mdes_member*0.5));
+  S.abroad.forEach(r=>{ h+=mkRow(`Study abroad/honors: ${r.desc||'Unnamed'} (${r.credits} cr × ${r.sections})`,r.credits*r.sections); });
+  S.tother.forEach(r=>{ h+=mkRow(`${r.desc||'Other teaching'} (${r.hours} hrs)`,fmt(wu(r.hours))); });
+  h+=`<div class="total-row"><span class="total-lbl">Teaching total</span><span class="total-val">${fmt(t.total)}<span class="total-unit">WU</span></span></div>`;
+  document.getElementById('teaching-results').innerHTML=h;
+}
+function renderResearch(){
+  let h='';
+  RES_BUCKETS.forEach(b=>S[b].forEach(r=>{ h+=mkRow(`${r.desc||'Unnamed'} (${r.hours} hrs)`,fmt(wu(r.hours))); }));
+  h+=`<div class="total-row"><span class="total-lbl">Research total</span><span class="total-val">${fmt(rWU())}<span class="total-unit">WU</span></span></div>`;
+  document.getElementById('research-results').innerHTML=h;
+}
+function renderService(){
+  let h='';
+  SVC_BUCKETS.forEach(b=>S[b].forEach(r=>{ h+=mkRow(`${r.desc||'Unnamed'} (${r.hours} hrs)`,fmt(wu(r.hours)),SVC_LABELS[b]); }));
+  h+=`<div class="total-row"><span class="total-lbl">Service total</span><span class="total-val">${fmt(sWU())}<span class="total-unit">WU</span></span></div>`;
+  document.getElementById('service-results').innerHTML=h;
+}
+function renderSummary(){
+  const t=tWU().total, r=rWU(), s=sWU(), total=t+r+s;
+  const pct=n=>total>0?Math.round((n/total)*100):0;
+  document.getElementById('sum-cards').innerHTML=`
+    <div class="sum-card"><div class="sum-lbl">Teaching</div><div class="sum-val">${fmt(t)}</div><div class="sum-sub">${pct(t)}% of total</div></div>
+    <div class="sum-card"><div class="sum-lbl">Research</div><div class="sum-val">${fmt(r)}</div><div class="sum-sub">${pct(r)}% of total</div></div>
+    <div class="sum-card"><div class="sum-lbl">Service</div><div class="sum-val">${fmt(s)}</div><div class="sum-sub">${pct(s)}% of total</div></div>`;
+  document.getElementById('prog-bar').innerHTML=`
+    <div class="prog-seg prog-t" style="width:${pct(t)}%"></div>
+    <div class="prog-seg prog-r" style="width:${pct(r)}%"></div>
+    <div class="prog-seg prog-s" style="width:${pct(s)}%"></div>`;
+  const diff=total-30;
+  document.getElementById('baseline-note').textContent=diff===0?'at 30 WU baseline':diff>0?`+${fmt(diff)} above baseline`:`${fmt(Math.abs(diff))} below baseline`;
+  document.getElementById('sum-detail').innerHTML=`
+    ${mkRow('Total WUs logged',fmt(total))}
+    ${mkRow('SoD annual baseline','30')}
+    ${mkRow('Teaching target (50–60%)','15–18')}
+    ${mkRow('Research target (30–40%)','9–12')}
+    ${mkRow('Service target (5–20%)','3–6')}`;
+}
+
+/* ── INIT ── */
+addCourse('teaching','',3,1); addCourse('teaching','',3,1);
+renderTeaching(); renderResearch(); renderService();
+
+/* ═══════════════════════════════════
+   BEAN COUNTER CHAT
+═══════════════════════════════════ */
+const SYSTEM = `You are Bean Counter, a small, cheerful, bespectacled coffee bean who is the world's foremost expert on the Myron E. Ullman, Jr. School of Design (SoD) Workload Policy at the University of Cincinnati's College of DAAP.
+
+You are helpful, warm, and a little witty — like a knowledgeable colleague who also happens to be a sentient bean. Keep answers concise and conversational (under ~120 words unless genuinely needed). Use ** for bold key terms. Occasional light bean humor is welcome, but don't overdo it.
+
+FULL POLICY KNOWLEDGE:
+
+OVERVIEW:
+- SoD faculty (9-month) complete 30 WUs per academic year
+- 1 WU ≈ 47–50 hours of effort (midpoint 48.5 hrs used in calculator)
+- Positions: Tenure-track (TT), Tenured, Professor of Practice (PoP), Educator
+
+TEACHING (1 WU = 1 credit hour):
+- TT and Tenured: 3:2 load = 15 WU = 50–60%
+- PoP: 3:3 = 18 WU = 60%
+- Educator: 4:4 = 24 WU = 80%
+- MDes thesis chair: 1 WU/student (fixed)
+- MDes committee member/advisor: 0.5 WU/student (fixed)
+- Study abroad / Honors: 1 WU = 1 credit hour; overages don't qualify for standard compensation
+- Teaching overages: 1–3 WU release, additional comp, or next-AY accrual; must be on APR
+
+RESEARCH TIERS: L=1.25 WU (~59 hrs), M=2.5 WU (~118 hrs), H=3.75 WU (~177 hrs)
+TT and Tenured: 9–12 WU expected (30–40%)
+
+Active process (open "research activities" / "creative activities" rows): L/M/H
+
+Grants: internal=L, Co-PI=M, PI federal=H; admin co-PI=M, admin PI=H
+
+Scholarly outputs:
+LOW (1.25 WU): regional conference paper/lecture, poster, published proceedings, non-peer-reviewed essay/short article, peer-reviewed short-form (book review, open space, short essay)
+MEDIUM (2.5 WU): national/international conference paper/lecture, exhibition catalog essay, book chapter in edited book, peer-reviewed journal article, curating exhibition, special journal issue editor, scholarly journal editor
+HIGH (3.75 WU): single-author/co-authored book, edited/co-edited book, high-impact journal article, national/international keynote
+
+Creative outputs: exhibition participation=L; leading/planning exhibition=M or H; creative outcomes=L/M/H
+Prof development (research-facing): ~0.625 WU, capped at 1.5 WU/AY
+
+SERVICE TIERS: L=0.625 WU (~30 hrs), M=1.25 WU (~61 hrs), H=1.5–2.5 WU (~73–121 hrs)
+TT/Tenured: 3–6 WU (5–20%). Min school service: TT=1.5 WU, Tenured/PoP=2.5 WU
+
+University: committee member=L/M; chair=H; task force=L/M; Faculty Senate=M; AAUP rep=M
+College (DAAP): committee=L/M/H; RPT ≤4=M, 5+=H; Dean Review=M; Search member=M, chair=H; Works Steering=H; Ad Hoc=M; Equity/Student Affairs/Library/Gallery=L
+School (SoD): portfolio reviews=L; mentorship=L/M; RPT ≤3=M, 4+=H; Search member=M, chair=H; committee=M/H; initiative leadership=H; recruitment=L/M
+Program: committee=L; leadership=M; lab management=H; course leadership multi-section=M; new course dev=H; student refs <10=L, 10+=M
+Professional & Community: prof org committee=L, leadership=M; community committee=L, leadership=M; editorial board=L; journal peer review=L; book manuscript review=M
+Industry engagement (required PoP; capped 7.2 WU/AY): engagement/consultation/knowledge gen/dissem = L/M/H (uses research WU values)
+Service prof dev: capped 1 WU/AY
+
+SPECIAL CIRCUMSTANCES:
+- Program coordinators (9-month): 1 course release + stipend/AY for secondary semester
+- Grants/sponsored projects: can fund adjunct/GA → course release
+- Tenured faculty may shift to 3:3 teaching model if not maintaining research trajectory (requires consultation)
+- Special projects from School Director: reallocation of WUs
+
+Always ground answers in this policy. When uncertain or when discretion is involved, recommend consulting the School Director. Keep it friendly, accurate, and brief.`;
+
+let chatHistory = [];
+let chatBusy = false;
+let chatOpen = false;
+let hintTimer;
+
+const msgsEl    = document.getElementById('chat-msgs');
+const typingEl  = document.getElementById('typing-row');
+const inputEl   = document.getElementById('chat-input');
+const sendBtnEl = document.getElementById('chat-send-btn');
+const panelEl   = document.getElementById('chat-panel');
+const hintEl    = document.getElementById('bean-hint');
+const launchEl  = document.getElementById('bean-launcher');
+const chatBeanBody = document.getElementById('chat-bean-body');
+const floatBeanBody = document.querySelector('.bean-float-btn .bean-body-g');
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  panelEl.classList.toggle('open', chatOpen);
+  launchEl.style.display = chatOpen ? 'none' : 'flex';
+  if(chatOpen) { setTimeout(()=>msgsEl.scrollTop=msgsEl.scrollHeight,50); }
+}
+
+// hide hint after 4s
+hintTimer = setTimeout(()=>hintEl.classList.add('hidden'), 4000);
+
+function scrollChat() { msgsEl.scrollTop = msgsEl.scrollHeight; }
+
+function addMsg(text, role) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role==='assistant'?'msg-bean':'msg-user');
+  div.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');
+  msgsEl.appendChild(div);
+  scrollChat(); return div;
+}
+
+function setBusy(v) {
+  chatBusy = v;
+  sendBtnEl.disabled = v;
+  typingEl.classList.toggle('show', v);
+  if(chatBeanBody)  chatBeanBody.classList.toggle('thinking', v);
+  if(floatBeanBody) floatBeanBody.classList.toggle('thinking', v);
+  if(v) scrollChat();
+}
+
+async function sendMsg(override) {
+  if(chatBusy) return;
+  const text = override || inputEl.value.trim();
+  if(!text) return;
+  inputEl.value=''; inputEl.style.height='auto';
+  document.getElementById('chat-sugs').style.display='none';
+  addMsg(text,'user');
+  chatHistory.push({role:'user',content:text});
+  setBusy(true);
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: SYSTEM,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'My beans got scrambled — try again?';
+    setBusy(false);
+    addMsg(reply,'assistant');
+    chatHistory.push({role:'assistant',content:reply});
+  } catch(e) {
+    setBusy(false);
+    addMsg('Something went wrong on my end. Try again in a moment!','assistant');
+  }
+}
+
+function sendSug(el) { sendMsg(el.textContent); }
+
+inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} });
+inputEl.addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; });
+</script>
+</body>
+</html>
