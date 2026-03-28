@@ -10,7 +10,7 @@
  *     Use "*" during local testing only.
  */
 
-const ALLOWED_ORIGIN = "https://your-username.github.io"; // ← update this
+const ALLOWED_ORIGIN = "https://trischdj.github.io"; // ← update this
 const ANTHROPIC_URL  = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_VER  = "2023-06-01";
 
