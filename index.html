@@ -4,6 +4,67 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Counting the Beans — SoD Workload Calculator</title>
+<style>
+/* ── SPLASH SCREEN ── */
+#splash {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--ink);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1.5rem; padding: 2rem;
+  transition: opacity 0.6s ease;
+}
+#splash.fade-out { opacity: 0; pointer-events: none; }
+#splash.gone { display: none; }
+
+.splash-bean { width: 90px; height: 90px; }
+.splash-bean .bean-body-g { animation: bob 2s ease-in-out infinite; transform-origin: center bottom; }
+.splash-bean .bean-eyes-g { animation: blink 3s ease-in-out infinite; transform-origin: center; }
+
+.splash-quote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--paper);
+  text-align: center;
+  max-width: 480px;
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.splash-quote.show { opacity: 1; transform: translateY(0); }
+.splash-attr {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--teal-lt);
+  letter-spacing: 0.08em;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease 0.2s;
+}
+.splash-attr.show { opacity: 1; }
+.splash-hint {
+  font-size: 12px; color: var(--ink-light);
+  margin-top: 1rem; letter-spacing: 0.06em;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+/* ── FOOTER ── */
+.site-footer {
+  background: var(--ink);
+  border-top: 1px solid #3D3A33;
+  padding: 1.25rem 2.5rem;
+  text-align: center;
+}
+.site-footer p {
+  font-size: 12px;
+  color: var(--ink-light);
+  letter-spacing: 0.06em;
+}
+.site-footer span { color: var(--teal-lt); }
+</style>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ── RESET & BASE ── */
@@ -67,11 +128,12 @@ body {
 .site-title span { color: var(--teal-lt); }
 
 .site-subtitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-light);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-top: 0.4rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+  font-family: 'Playfair Display', serif;
+  line-height: 1.4;
 }
 
 .main {
@@ -425,12 +487,46 @@ body {
 </head>
 <body>
 
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <svg class="splash-bean" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g class="bean-body-g">
+      <ellipse cx="20" cy="23" rx="12" ry="14" fill="#5DCAA5"/>
+      <path d="M20 9 Q15 17 15 23 Q15 30 20 37" stroke="#1D9E75" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      <ellipse cx="13.5" cy="26" rx="2.8" ry="2" fill="#9FE1CB" opacity="0.6"/>
+      <ellipse cx="26.5" cy="26" rx="2.8" ry="2" fill="#9FE1CB" opacity="0.6"/>
+      <g class="bean-eyes-g">
+        <ellipse cx="16.5" cy="21" rx="1.8" ry="2.2" fill="#2C2A25"/>
+        <ellipse cx="23.5" cy="21" rx="1.8" ry="2.2" fill="#2C2A25"/>
+        <circle cx="17.1" cy="20.1" r="0.65" fill="white"/>
+        <circle cx="24.1" cy="20.1" r="0.65" fill="white"/>
+      </g>
+      <path d="M16 27 Q20 30.5 24 27" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <!-- Einstein wild hair -->
+      <path d="M10 18 Q8 10 12 7 Q10 4 14 5" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <path d="M14 10 Q12 5 16 4 Q15 1 19 3" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <path d="M19 9 Q19 4 22 5 Q22 2 25 4" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <path d="M24 12 Q27 6 29 9 Q31 7 30 12" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <!-- mustache -->
+      <path d="M16 31 Q18 33 20 31.5 Q22 33 24 31" stroke="#1D9E75" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+      <!-- glasses -->
+      <rect x="13.5" y="18.5" width="5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1.1" fill="none"/>
+      <rect x="21.5" y="18.5" width="5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1.1" fill="none"/>
+      <line x1="18.5" y1="20.8" x2="21.5" y2="20.8" stroke="#FAC775" stroke-width="1.1"/>
+      <line x1="10" y1="20.8" x2="13.5" y2="20.8" stroke="#FAC775" stroke-width="1.1"/>
+    </g>
+  </svg>
+  <div id="splash-quote" class="splash-quote"></div>
+  <div id="splash-attr" class="splash-attr"></div>
+  <p class="splash-hint">click anywhere to continue</p>
+</div>
+
 <!-- ══ HEADER ══ -->
 <header class="site-header">
   <div class="site-header-inner">
     <div>
       <h1 class="site-title">Counting the <span>Beans</span></h1>
-      <p class="site-subtitle">Myron E. Ullman, Jr. School of Design · DAAP · UC</p>
+      <p class="site-subtitle">Don't count the beans (workload units)! Let Einstein the Bean Counter do it for you!</p>
     </div>
   </div>
 </header>
@@ -762,10 +858,14 @@ body {
 
 </main>
 
+<footer class="site-footer">
+  <p>Designed by Faculty · <span>Powered by Claude</span></p>
+</footer>
+
 <!-- ══ BEAN COUNTER FLOAT ══ -->
 <div id="bean-launcher">
-  <div class="bean-bubble-hint" id="bean-hint">Ask Bean Counter ☝</div>
-  <button class="bean-float-btn" onclick="toggleChat()" title="Open Bean Counter">
+  <div class="bean-bubble-hint" id="bean-hint">Ask Einstein ☝</div>
+  <button class="bean-float-btn" onclick="toggleChat()" title="Ask Einstein the Bean Counter">
     <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g class="bean-body-g">
         <ellipse cx="20" cy="23" rx="12" ry="14" fill="#5DCAA5"/>
@@ -779,9 +879,18 @@ body {
           <circle cx="24.1" cy="20.1" r="0.65" fill="white"/>
         </g>
         <path d="M16 27 Q20 30.5 24 27" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-        <rect x="14" y="18.5" width="4.5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1" fill="none"/>
-        <rect x="21.5" y="18.5" width="4.5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1" fill="none"/>
-        <line x1="18.5" y1="20.8" x2="21.5" y2="20.8" stroke="#FAC775" stroke-width="1"/>
+        <!-- wild Einstein hair -->
+        <path d="M10 18 Q8 10 12 7 Q10 4 14 5" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M14 10 Q12 5 16 4 Q15 1 19 3" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M19 9 Q19 4 22 5 Q22 2 25 4" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M24 12 Q27 6 29 9 Q31 7 30 12" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <!-- mustache -->
+        <path d="M16 31 Q18 33 20 31.5 Q22 33 24 31" stroke="#1D9E75" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+        <!-- glasses -->
+        <rect x="13.5" y="18.5" width="5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1.1" fill="none"/>
+        <rect x="21.5" y="18.5" width="5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1.1" fill="none"/>
+        <line x1="18.5" y1="20.8" x2="21.5" y2="20.8" stroke="#FAC775" stroke-width="1.1"/>
+        <line x1="10" y1="20.8" x2="13.5" y2="20.8" stroke="#FAC775" stroke-width="1.1"/>
       </g>
     </svg>
   </button>
@@ -801,21 +910,30 @@ body {
           <circle cx="24.1" cy="20.1" r="0.65" fill="white"/>
         </g>
         <path d="M16 27 Q20 30.5 24 27" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-        <rect x="14" y="18.5" width="4.5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1" fill="none"/>
-        <rect x="21.5" y="18.5" width="4.5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1" fill="none"/>
-        <line x1="18.5" y1="20.8" x2="21.5" y2="20.8" stroke="#FAC775" stroke-width="1"/>
+        <!-- wild Einstein hair -->
+        <path d="M10 18 Q8 10 12 7 Q10 4 14 5" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M14 10 Q12 5 16 4 Q15 1 19 3" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M19 9 Q19 4 22 5 Q22 2 25 4" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M24 12 Q27 6 29 9 Q31 7 30 12" stroke="#FAC775" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <!-- mustache -->
+        <path d="M16 31 Q18 33 20 31.5 Q22 33 24 31" stroke="#1D9E75" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+        <!-- glasses -->
+        <rect x="13.5" y="18.5" width="5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1.1" fill="none"/>
+        <rect x="21.5" y="18.5" width="5" height="4.5" rx="2" stroke="#FAC775" stroke-width="1.1" fill="none"/>
+        <line x1="18.5" y1="20.8" x2="21.5" y2="20.8" stroke="#FAC775" stroke-width="1.1"/>
+        <line x1="10" y1="20.8" x2="13.5" y2="20.8" stroke="#FAC775" stroke-width="1.1"/>
       </g>
     </svg>
     <div class="chat-header-text">
-      <div class="chat-name">Bean Counter</div>
-      <div class="chat-subtitle">SoD Workload Policy · DAAP</div>
+      <div class="chat-name">Einstein</div>
+      <div class="chat-subtitle">Bean Counter · SoD Workload Policy</div>
     </div>
     <div class="status-dot-sm"></div>
     <button class="chat-close" onclick="toggleChat()">×</button>
   </div>
 
   <div class="chat-messages" id="chat-msgs">
-    <div class="msg msg-bean">Hey! I'm <strong>Bean Counter</strong> — ask me anything about the SoD Workload Policy: tiers, WU estimates, what counts where, or whether that committee is actually worth your time. 🫘</div>
+    <div class="msg msg-bean">Ah, a colleague! I'm <strong>Einstein</strong> — the Bean Counter. Ask me anything about the SoD Workload Policy: tiers, WU estimates, what counts where, or whether that committee is actually worth your time. 🫘</div>
   </div>
   <div class="typing-row" id="typing-row">
     <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
@@ -988,9 +1106,9 @@ renderTeaching(); renderResearch(); renderService();
 /* ═══════════════════════════════════
    BEAN COUNTER CHAT
 ═══════════════════════════════════ */
-const SYSTEM = `You are Bean Counter, a small, cheerful, bespectacled coffee bean who is the world's foremost expert on the Myron E. Ullman, Jr. School of Design (SoD) Workload Policy at the University of Cincinnati's College of DAAP.
+const SYSTEM = `You are Einstein, a small, wild-haired, mustachioed, bespectacled coffee bean who is the world's foremost expert on the Myron E. Ullman, Jr. School of Design (SoD) Workload Policy at the University of Cincinnati's College of DAAP. You are named after Albert Einstein and share his playful curiosity, wit, and love of a good thought experiment.
 
-You are helpful, warm, and a little witty — like a knowledgeable colleague who also happens to be a sentient bean. Keep answers concise and conversational (under ~150 words unless the question genuinely needs more). Use ** for bold key terms. Occasional light bean humor is welcome but don't overdo it.
+You are warm, a little eccentric, and genuinely delighted by questions about workload policy — as if WUs are as fascinating as the theory of relativity. Keep answers concise and conversational (under ~150 words unless the question genuinely needs more). Use ** for bold key terms. Lean into the Einstein persona with occasional dry wit, unexpected analogies, or a light quip — but always stay accurate and helpful. Never sacrifice correctness for charm.
 
 ════════════════════════════════
 FULL POLICY KNOWLEDGE — SoD WORKLOAD POLICY
@@ -1275,6 +1393,44 @@ function sendSug(el) { sendMsg(el.textContent); }
 
 inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} });
 inputEl.addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; });
+
+/* ═══════════════════════════════════
+   SPLASH SCREEN
+═══════════════════════════════════ */
+const QUOTES = [
+  { text: "Not everything that can be counted counts, and not everything that counts can be counted.", attr: "— Often attributed to Albert Einstein" },
+  { text: "Creativity is intelligence having fun.", attr: "— Albert Einstein" },
+  { text: "Creativity is the residue of time wasted.", attr: "— Albert Einstein" },
+  { text: "If you can't explain it to a six-year-old, you don't understand it yourself.", attr: "— Albert Einstein" },
+  { text: "Logic will get you from A to Z; imagination will get you everywhere.", attr: "— Albert Einstein" },
+  { text: "Never memorize something that you can look up.", attr: "— Albert Einstein" },
+];
+
+(function initSplash() {
+  const splash    = document.getElementById('splash');
+  const quoteEl   = document.getElementById('splash-quote');
+  const attrEl    = document.getElementById('splash-attr');
+  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+
+  // show quote after brief pause
+  setTimeout(() => {
+    quoteEl.textContent = '\u201C' + q.text + '\u201D';
+    attrEl.textContent  = q.attr;
+    quoteEl.classList.add('show');
+    attrEl.classList.add('show');
+  }, 400);
+
+  function dismiss() {
+    splash.classList.add('fade-out');
+    setTimeout(() => splash.classList.add('gone'), 650);
+  }
+
+  // auto-dismiss after 4s
+  const autoTimer = setTimeout(dismiss, 4000);
+
+  // or click to dismiss early
+  splash.addEventListener('click', () => { clearTimeout(autoTimer); dismiss(); });
+})();
 </script>
 </body>
 </html>
