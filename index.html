@@ -1127,14 +1127,12 @@ function qAdd(bucket,listId,desc,hours){ addHours(bucket,listId,desc+' // replac
 function renderHoursList(bucket,listId) {
   const el=document.getElementById(listId); if(!el) return; el.innerHTML='';
   S[bucket].forEach(r=>{
-    const hid='h_'+r.id; const est=r.hours>0?`= ${fmt(wu(r.hours))} WU`:'';
+    const hid='h_'+r.id;
+    const est=r.hours>0?`= ${fmt(wu(r.hours))} WU`:'';
+    const safeDesc = r.desc.replace(/"/g,'&quot;');
     const div=document.createElement('div'); div.className='entry-row';
-    div.innerHTML=`<input class="entry-text" value="${r.desc}" placeholder="Describe the activity" oninput="updItem('${bucket}','${r.id}','desc',this.value)"><input class="entry-num" type="number" min="0" step="1" value="${r.hours}" oninput="updItem('${bucket}','${r.id}','hours',+this.value)"><span class="entry-hrs-lbl">hrs</span><button class="rm-btn" onclick="rmItem('${bucket}','${r.id}','${listId}')">×</button><span></span><div class="entry-hint" id="${hid}">${est}</div>`;
+    div.innerHTML=`<input class="entry-text" value="${safeDesc}" placeholder="Describe the activity" oninput="updItem('${bucket}','${r.id}','desc',this.value)"><input class="entry-num" type="number" min="0" step="1" value="${r.hours}" oninput="updItem('${bucket}','${r.id}','hours',+this.value);document.getElementById('${hid}').textContent=this.value>0?'= '+fmt(wu(+this.value))+' WU':''"><span class="entry-hrs-lbl">hrs</span><button class="rm-btn" onclick="rmItem('${bucket}','${r.id}','${listId}')">×</button><span></span><div class="entry-hint" id="${hid}">${est}</div>`;
     el.appendChild(div);
-    el.lastChild.previousSibling.previousSibling; // hint already in DOM
-    div.querySelector('input[type=number]').addEventListener('input',function(){
-      document.getElementById(hid).textContent=this.value>0?'= '+fmt(wu(+this.value))+' WU':'';
-    });
   });
 }
 function updItem(bucket,id,field,val){ const r=S[bucket].find(x=>x.id===id); if(!r)return; r[field]=val; reRender(bucket); }
@@ -1598,7 +1596,7 @@ inputEl.addEventListener('input',function(){ this.style.height='auto'; this.styl
    NOTION SUBMIT & DOWNLOAD
 ═══════════════════════════════════ */
 const NOTION_WORKER_URL = 'https://floral-lake-9065.trischdj.workers.dev/notion';
-const NOTION_DS_ID      = '6be19e10-8ce6-494a-a456-302ffaf26a5b';
+const NOTION_DB_ID      = 'd6822dd80ed841cbad08fb1d8ff113c7';
 
 function buildRows() {
   const name  = document.getElementById('fac-name').value.trim() || 'Unknown';
@@ -1677,7 +1675,7 @@ async function submitToNotion() {
     const res = await fetch(NOTION_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data_source_id: NOTION_DS_ID, rows })
+      body: JSON.stringify({ database_id: NOTION_DB_ID, rows })
     });
     if(res.ok) {
       statusEl.style.color = 'var(--teal)';
