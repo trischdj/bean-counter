@@ -595,7 +595,42 @@ body {
   <div class="faculty-card">
     <div class="faculty-field">
       <label class="faculty-label" for="fac-name">Faculty name</label>
-      <input class="faculty-input" id="fac-name" type="text" placeholder="Your name" oninput="onFacultyChange()">
+      <select class="faculty-select" id="fac-name" onchange="onFacultyChange()">
+        <option value="">— select your name —</option>
+        <option value="Matt Barnes">Matt Barnes</option>
+        <option value="Brooke Brandewie">Brooke Brandewie</option>
+        <option value="Yoshiko Burke">Yoshiko Burke</option>
+        <option value="Peter Chamberlain">Peter Chamberlain</option>
+        <option value="Michael Deininger">Michael Deininger</option>
+        <option value="John Dixon">John Dixon</option>
+        <option value="Emily Fischer">Emily Fischer</option>
+        <option value="Maureen France">Maureen France</option>
+        <option value="Matthew Furber">Matthew Furber</option>
+        <option value="Yong-Gyun Ghim">Yong-Gyun Ghim</option>
+        <option value="Sean Hafer">Sean Hafer</option>
+        <option value="Zachary Hoh">Zachary Hoh</option>
+        <option value="Ali Ilhan">Ali Ilhan</option>
+        <option value="Heekyoung Jung">Heekyoung Jung</option>
+        <option value="Tim Karoleff">Tim Karoleff</option>
+        <option value="Injoo Kim">Injoo Kim</option>
+        <option value="Myoung Ok Kim">Myoung Ok Kim</option>
+        <option value="Ashley Kubley">Ashley Kubley</option>
+        <option value="Brigid O'Kane">Brigid O'Kane</option>
+        <option value="Isil Oygur Ilhan">Isil Oygur Ilhan</option>
+        <option value="Alison Place">Alison Place</option>
+        <option value="Muhammad Nafisur Rahman">Muhammad Nafisur Rahman</option>
+        <option value="Claudia Rebola">Claudia Rebola</option>
+        <option value="Emil Robinson">Emil Robinson</option>
+        <option value="Arti Sandhu">Arti Sandhu</option>
+        <option value="Renee Seward Nettle">Renee Seward Nettle</option>
+        <option value="Kristina Shin">Kristina Shin</option>
+        <option value="Yingying Sun">Yingying Sun</option>
+        <option value="Todd Timney">Todd Timney</option>
+        <option value="Braden Trauth">Braden Trauth</option>
+        <option value="D.J. Trischler">D.J. Trischler</option>
+        <option value="Jeffery Welch">Jeffery Welch</option>
+        <option value="Stephanie Wood">Stephanie Wood</option>
+      </select>
     </div>
     <div class="faculty-field">
       <label class="faculty-label" for="fac-appt">Appointment type</label>
@@ -1596,61 +1631,49 @@ inputEl.addEventListener('input',function(){ this.style.height='auto'; this.styl
    NOTION SUBMIT & DOWNLOAD
 ═══════════════════════════════════ */
 const NOTION_WORKER_URL = 'https://floral-lake-9065.trischdj.workers.dev/notion';
-const NOTION_DB_ID      = 'd6822dd80ed841cbad08fb1d8ff113c7';
+const NOTION_DB_ID      = 'fd498328893d47f3ae421cd569d6f02e';
+const NOTION_DS_ID      = 'ef3bd500-7fea-4b13-ad2b-37e1b53cb76a';
 
-function buildRows() {
-  const name  = document.getElementById('fac-name').value.trim() || 'Unknown';
-  const appt  = document.getElementById('fac-appt').value;
-  const ay    = document.getElementById('fac-ay').value;
-  const cfg   = APPT_CONFIG[appt];
-  const apptLabel = cfg ? cfg.label : appt;
-  const rows  = [];
+function buildActivityContent() {
+  const sections = [];
 
   function parseDesc(raw) {
     const parts = raw.split('//');
     return {
-      activityType: parts[0].trim(),
-      activityName: parts.length > 1 ? parts[1].trim() : ''
+      type: parts[0].trim(),
+      name: parts.length > 1 ? parts[1].trim() : ''
     };
   }
 
-  function addRow(category, desc, hours, wuVal) {
-    const { activityType, activityName } = parseDesc(desc);
-    rows.push({
-      'Faculty Name':    name,
-      'Appointment Type': apptLabel,
-      'Academic Year':   ay,
-      'Category':        category,
-      'Activity Type':   activityType,
-      'Activity Name':   activityName || activityType,
-      'Hours':           hours,
-      'Workload Units':  Math.round(wuVal * 100) / 100
-    });
+  function fmtActivity(desc, hours, wuVal) {
+    const { type, name } = parseDesc(desc);
+    const label = name && name !== type ? `**${name}** (${type})` : `**${type}**`;
+    const hrs = hours > 0 ? ` · ${hours} hrs` : '';
+    return `- ${label}${hrs} · ${fmt(wuVal)} WU`;
   }
 
-  // Teaching — courses
-  S.teaching.forEach(r => {
-    const wuVal = r.credits * r.sections;
-    addRow('Teaching', r.desc || 'Course', 0, wuVal);
-  });
-  S.abroad.forEach(r => {
-    const wuVal = r.credits * r.sections;
-    addRow('Teaching', (r.desc || 'Study abroad/honors') + ' // study abroad / honors course', 0, wuVal);
-  });
-  if(fixed.mdes_chair > 0)  addRow('Teaching', 'MDes thesis supervision // thesis chair',    fixed.mdes_chair * 47, fixed.mdes_chair * 1);
-  if(fixed.mdes_member > 0) addRow('Teaching', 'MDes thesis supervision // committee member', fixed.mdes_member * 24, fixed.mdes_member * 0.5);
-  S.tother.forEach(r => addRow('Teaching', r.desc || 'Other teaching', r.hours, wu(r.hours)));
+  // Teaching
+  const teachingLines = [];
+  S.teaching.forEach(r => teachingLines.push(fmtActivity(r.desc || 'Course', 0, r.credits * r.sections)));
+  S.abroad.forEach(r => teachingLines.push(fmtActivity((r.desc || 'Study abroad') + ' // study abroad / honors', 0, r.credits * r.sections)));
+  if(fixed.mdes_chair > 0)  teachingLines.push(fmtActivity('MDes thesis supervision // thesis chair', fixed.mdes_chair * 47, fixed.mdes_chair));
+  if(fixed.mdes_member > 0) teachingLines.push(fmtActivity('MDes thesis supervision // committee member', fixed.mdes_member * 24, fixed.mdes_member * 0.5));
+  S.tother.forEach(r => teachingLines.push(fmtActivity(r.desc || 'Other teaching', r.hours, wu(r.hours))));
+  if(teachingLines.length) sections.push('## Teaching\n\n' + teachingLines.join('\n'));
 
   // Research
+  const researchLines = [];
   [...S.rprocess, ...S.rgrant, ...S.routput, ...S.rcreative].forEach(r =>
-    addRow('Research', r.desc || 'Research activity', r.hours, wu(r.hours)));
+    researchLines.push(fmtActivity(r.desc || 'Research activity', r.hours, wu(r.hours))));
+  if(researchLines.length) sections.push('## Research\n\n' + researchLines.join('\n'));
 
   // Service
-  const svcBuckets = ['svcuniv','svccoll','svcschool','svcprog','svcprof','svcind','svcpd'];
-  svcBuckets.forEach(b => S[b].forEach(r =>
-    addRow('Service', r.desc || 'Service activity', r.hours, wu(r.hours))));
+  const serviceLines = [];
+  ['svcuniv','svccoll','svcschool','svcprog','svcprof','svcind','svcpd'].forEach(b =>
+    S[b].forEach(r => serviceLines.push(fmtActivity(r.desc || 'Service activity', r.hours, wu(r.hours)))));
+  if(serviceLines.length) sections.push('## Service\n\n' + serviceLines.join('\n'));
 
-  return rows;
+  return sections.join('\n\n');
 }
 
 async function submitToNotion() {
@@ -1660,26 +1683,42 @@ async function submitToNotion() {
   const statusEl = document.getElementById('submit-status');
   const btn = document.getElementById('submit-btn');
 
-  if(!name) { statusEl.style.color='#c0392b'; statusEl.textContent = 'Please enter your name before submitting.'; return; }
+  if(!name) { statusEl.style.color='#c0392b'; statusEl.textContent = 'Please select your name before submitting.'; return; }
   if(!appt) { statusEl.style.color='#c0392b'; statusEl.textContent = 'Please select your appointment type before submitting.'; return; }
   if(!ay)   { statusEl.style.color='#c0392b'; statusEl.textContent = 'Please select an academic year before submitting.'; return; }
 
-  const rows = buildRows();
-  if(!rows.length) { statusEl.style.color='#c0392b'; statusEl.textContent = 'No activities logged yet — nothing to submit.'; return; }
+  const cfg = APPT_CONFIG[appt];
+  const t = tWU().total, r = rWU(), s = sWU();
+  const total = cfg && !cfg.showResearch ? t + s : t + r + s;
+  const content = buildActivityContent();
 
   btn.disabled = true;
   statusEl.style.color = 'var(--ink-light)';
-  statusEl.textContent = `Sending ${rows.length} activities to Notion…`;
+  statusEl.textContent = 'Submitting to Notion…';
 
   try {
     const res = await fetch(NOTION_WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ database_id: NOTION_DB_ID, rows })
+      body: JSON.stringify({
+        database_id: NOTION_DB_ID,
+        data_source_id: NOTION_DS_ID,
+        faculty_name: name,
+        academic_year: ay,
+        appointment_type: cfg ? cfg.label : appt,
+        teaching_wu: Math.round(t * 100) / 100,
+        research_wu: Math.round(r * 100) / 100,
+        service_wu: Math.round(s * 100) / 100,
+        total_wu: Math.round(total * 100) / 100,
+        content
+      })
     });
     if(res.ok) {
+      const data = await res.json();
       statusEl.style.color = 'var(--teal)';
-      statusEl.textContent = `✓ ${rows.length} activities submitted successfully.`;
+      statusEl.textContent = data.updated
+        ? '✓ Workload record updated successfully.'
+        : '✓ Workload record submitted successfully.';
     } else {
       throw new Error(await res.text());
     }
@@ -1699,7 +1738,7 @@ function downloadSummary() {
   const apptLabel = cfg ? cfg.label : '—';
   const t = tWU().total, r = rWU(), s = sWU();
   const total = cfg && !cfg.showResearch ? t + s : t + r + s;
-  const rows  = buildRows();
+  const content = buildActivityContent();
 
   const lines = [
     'SoD FACULTY WORKLOAD SUMMARY',
@@ -1719,9 +1758,7 @@ function downloadSummary() {
     '',
     'ACTIVITY LOG',
     '------------',
-    ...rows.map(r =>
-      `[${r.Category}] ${r['Activity Type']}${r['Activity Name'] && r['Activity Name'] !== r['Activity Type'] ? ' — ' + r['Activity Name'] : ''} | ${r.Hours > 0 ? r.Hours + ' hrs | ' : ''}${r['Workload Units']} WU`
-    ),
+    content.replace(/##\s*/g,'').replace(/\*\*/g,''),
     '',
     '============================',
     'Generated by Counting the Beans',
