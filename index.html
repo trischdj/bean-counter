@@ -833,8 +833,13 @@ body {
         <span class="chip chip-h" onclick="qAdd('svcuniv','svcuniv-list','University committee chair',97)">Committee chair (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcuniv','svcuniv-list','University-level task force (less active)',30)">Task force (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcuniv','svcuniv-list','University-level task force (more active)',61)">Task force (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcuniv','svcuniv-list','University-level task force (chair / high activity)',97)">Task force (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcuniv','svcuniv-list','Faculty Senate (less active)',30)">Faculty Senate (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcuniv','svcuniv-list','Faculty Senate',61)">Faculty Senate (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcuniv','svcuniv-list','Faculty Senate (leadership role)',97)">Faculty Senate (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcuniv','svcuniv-list','AAUP representative (less active)',30)">AAUP rep (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcuniv','svcuniv-list','AAUP representative',61)">AAUP rep (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcuniv','svcuniv-list','AAUP representative (leadership role)',97)">AAUP rep (high)</span>
       </div>
       <div id="svcuniv-list"></div>
       <button class="add-btn" onclick="addHours('svcuniv','svcuniv-list')">+ add university service</button>
@@ -849,15 +854,27 @@ body {
         <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP committee (less active)',30)">DAAP committee (low)</span>
         <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP committee (more active)',49)">DAAP committee (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP committee / task force (high)',97)">DAAP committee (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP RPT committee (3 or fewer cases)',30)">DAAP RPT ≤3 (low)</span>
         <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP RPT committee (4 or fewer cases)',49)">DAAP RPT ≤4 (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP RPT committee (5 or more cases)',97)">DAAP RPT 5+ (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP Dean Review Committee (less active)',30)">Dean Review (low)</span>
         <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Dean Review Committee',49)">Dean Review (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Dean Review Committee (chair / high activity)',97)">Dean Review (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP Search Committee member (less active)',30)">Search committee (low)</span>
         <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Search Committee member',49)">Search committee (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Search Committee chair',97)">Search chair (high)</span>
-        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Works Steering Committee',97)">Steering committee (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP Works Steering Committee (less active)',30)">Steering committee (low)</span>
+        <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Works Steering Committee',49)">Steering committee (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Works Steering Committee (high)',97)">Steering committee (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP Ad Hoc Committee (handbook, bylaws)',30)">Ad hoc committee (low)</span>
         <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Ad Hoc Committee (handbook, bylaws)',49)">Ad hoc committee (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Ad Hoc Committee (chair / high activity)',97)">Ad hoc committee (high)</span>
         <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP Equity and Inclusion',30)">Equity &amp; Inclusion (low)</span>
+        <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Equity and Inclusion (more active)',49)">Equity &amp; Inclusion (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Equity and Inclusion (leadership)',97)">Equity &amp; Inclusion (high)</span>
         <span class="chip chip-l" onclick="qAdd('svccoll','svccoll-list','DAAP Student Affairs / Library / Gallery',30)">Student affairs etc. (low)</span>
+        <span class="chip chip-m" onclick="qAdd('svccoll','svccoll-list','DAAP Student Affairs / Library / Gallery (more active)',49)">Student affairs etc. (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svccoll','svccoll-list','DAAP Student Affairs / Library / Gallery (leadership)',97)">Student affairs etc. (high)</span>
       </div>
       <div id="svccoll-list"></div>
       <button class="add-btn" onclick="addHours('svccoll','svccoll-list')">+ add college service</button>
@@ -870,17 +887,26 @@ body {
       <div class="sub-note">SoD-level work. Minimum 1.5 WUs required (TT) or 2.5 WUs (tenured &amp; PoP) from this category.</div>
       <div class="chips">
         <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','Portfolio reviews',30)">Portfolio reviews (low)</span>
+        <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','Portfolio reviews (more active)',61)">Portfolio reviews (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','Portfolio reviews (lead / high activity)',97)">Portfolio reviews (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','Faculty mentorship (less involvement)',30)">Mentorship (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','Faculty mentorship (more involvement)',61)">Mentorship (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','Faculty mentorship (extensive involvement)',97)">Mentorship (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','School RPT committee (2 or fewer cases)',30)">School RPT ≤2 (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','School RPT committee (3 or fewer cases)',61)">School RPT ≤3 (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','School RPT committee (4 or more cases)',97)">School RPT 4+ (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','School Faculty Search Committee member (less active)',30)">Search committee (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','School Faculty Search Committee member',61)">Search committee (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','School Faculty Search Committee chair',97)">Search chair (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','School committee / task force (less active)',30)">School committee (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','School committee / task force (less active)',61)">School committee (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','School committee / task force (more active)',97)">School committee (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','School initiative / project (contributing)',30)">Initiative (low)</span>
+        <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','School initiative / project (active member)',61)">Initiative (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','School initiative / project leadership',97)">Initiative leadership (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcschool','svcschool-list','Recruitment and promotion (low)',30)">Recruitment (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcschool','svcschool-list','Recruitment and promotion (more active)',61)">Recruitment (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcschool','svcschool-list','Recruitment and promotion (lead / high activity)',97)">Recruitment (high)</span>
       </div>
       <div id="svcschool-list"></div>
       <button class="add-btn" onclick="addHours('svcschool','svcschool-list')">+ add school service</button>
@@ -893,12 +919,17 @@ body {
       <div class="sub-note">Program-level committees, course leadership, student references.</div>
       <div class="chips">
         <span class="chip chip-l" onclick="qAdd('svcprog','svcprog-list','Program committee / task / initiative',30)">Program committee (low)</span>
-        <span class="chip chip-m" onclick="qAdd('svcprog','svcprog-list','Program initiative / project leadership',61)">Program leadership (medium)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprog','svcprog-list','Program initiative / project leadership',61)">Program committee (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprog','svcprog-list','Program initiative / project leadership (high)',97)">Program committee (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcprog','svcprog-list','Lab management (supporting)',30)">Lab management (low)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprog','svcprog-list','Lab management (active)',61)">Lab management (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svcprog','svcprog-list','Lab management',97)">Lab management (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcprog','svcprog-list','Course leadership (less active)',30)">Course leadership (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcprog','svcprog-list','Course leadership (multi-section)',61)">Course leadership (medium)</span>
         <span class="chip chip-h" onclick="qAdd('svcprog','svcprog-list','Course leadership: developing a new course',97)">New course dev (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcprog','svcprog-list','Student references / recommendations (fewer than 10)',30)">Student refs &lt;10 (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcprog','svcprog-list','Student references / recommendations (10 or more)',61)">Student refs 10+ (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprog','svcprog-list','Student references / recommendations (extensive)',97)">Student refs (high)</span>
       </div>
       <div id="svcprog-list"></div>
       <button class="add-btn" onclick="addHours('svcprog','svcprog-list')">+ add program service</button>
@@ -912,11 +943,19 @@ body {
       <div class="chips">
         <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Professional organization committee member',30)">Prof org committee (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcprof','svcprof-list','Professional organization leadership',61)">Prof org leadership (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprof','svcprof-list','Professional organization leadership (officer / president)',97)">Prof org leadership (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Community organization committee member',30)">Community committee (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcprof','svcprof-list','Community organization leadership',61)">Community leadership (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprof','svcprof-list','Community organization leadership (officer / director)',97)">Community leadership (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Editorial board member (journal or book series)',30)">Editorial board (low)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprof','svcprof-list','Editorial board member (active role)',61)">Editorial board (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprof','svcprof-list','Editorial board (editor or senior role)',97)">Editorial board (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Peer review of academic journal articles',30)">Journal peer review (low)</span>
+        <span class="chip chip-m" onclick="qAdd('svcprof','svcprof-list','Peer review of academic journal articles (multiple)',61)">Journal peer review (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprof','svcprof-list','Peer review (extensive / multiple journals)',97)">Journal peer review (high)</span>
+        <span class="chip chip-l" onclick="qAdd('svcprof','svcprof-list','Review of book manuscript for publisher (short)',30)">Book manuscript review (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcprof','svcprof-list','Review of book manuscript for publisher',61)">Book manuscript review (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcprof','svcprof-list','Review of book manuscript for publisher (extensive)',97)">Book manuscript review (high)</span>
       </div>
       <div id="svcprof-list"></div>
       <button class="add-btn" onclick="addHours('svcprof','svcprof-list')">+ add professional / community service</button>
@@ -934,10 +973,13 @@ body {
         <span class="chip chip-h" onclick="qAdd('svcind','svcind-list','Industry engagement (high)',177)">Industry engagement (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcind','svcind-list','Industry consultation (low)',59)">Consultation (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcind','svcind-list','Industry consultation (medium)',118)">Consultation (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcind','svcind-list','Industry consultation (high)',177)">Consultation (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcind','svcind-list','Professional practice knowledge generation (low)',59)">Knowledge gen (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcind','svcind-list','Professional practice knowledge generation (medium)',118)">Knowledge gen (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcind','svcind-list','Professional practice knowledge generation (high)',177)">Knowledge gen (high)</span>
         <span class="chip chip-l" onclick="qAdd('svcind','svcind-list','Professional practice knowledge dissemination (low)',59)">Knowledge dissem (low)</span>
         <span class="chip chip-m" onclick="qAdd('svcind','svcind-list','Professional practice knowledge dissemination (medium)',118)">Knowledge dissem (medium)</span>
+        <span class="chip chip-h" onclick="qAdd('svcind','svcind-list','Professional practice knowledge dissemination (high)',177)">Knowledge dissem (high)</span>
       </div>
       <div id="svcind-list"></div>
       <button class="add-btn" onclick="addHours('svcind','svcind-list')">+ add industry engagement</button>
@@ -1222,44 +1264,37 @@ const APPT_CONFIG = {
     label: 'Tenure-Track (Assistant Professor)',
     note:  '3:2 load · 15 WU teaching · 9–12 WU research · 3–6 WU service',
     courses: [{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1}],
-    // 3 fall + 2 spring = 5 courses total
-    teachingTarget: '15 WU (3:2 load)',
-    researchTarget: '9–12 WU (30–40%)',
-    serviceTarget:  '3–6 WU (5–20%)',
-    showResearch: true,
-    baseline: 30
+    teachingTarget: '15 WU (3:2 load)', teachingMin: 15, teachingMax: 18,
+    researchTarget: '9–12 WU',          researchMin: 9,  researchMax: 12,
+    serviceTarget:  '3–6 WU',           serviceMin:  3,  serviceMax:  6,
+    showResearch: true, baseline: 30
   },
   'tenured': {
     label: 'Tenured (Associate / Full Professor)',
     note:  '3:2 load · 15 WU teaching · 9–12 WU research · 3–6 WU service',
     courses: [{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1}],
-    teachingTarget: '15 WU (3:2 load)',
-    researchTarget: '9–12 WU (30–40%)',
-    serviceTarget:  '3–6 WU (10–20%)',
-    showResearch: true,
-    baseline: 30
+    teachingTarget: '15 WU (3:2 load)', teachingMin: 15, teachingMax: 18,
+    researchTarget: '9–12 WU',          researchMin: 9,  researchMax: 12,
+    serviceTarget:  '3–6 WU',           serviceMin:  3,  serviceMax:  6,
+    showResearch: true, baseline: 30
   },
   'pop': {
     label: 'Professor of Practice',
     note:  '3:3 load · 18 WU teaching · No research · 12 WU service',
     courses: [{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1}],
-    // 3 fall + 3 spring = 6 courses
-    teachingTarget: '18 WU (3:3 load)',
-    researchTarget: 'N/A',
-    serviceTarget:  '12 WU (40%)',
-    showResearch: false,
-    baseline: 30
+    teachingTarget: '18 WU (3:3 load)', teachingMin: 18, teachingMax: 18,
+    researchTarget: 'N/A',              researchMin: 0,  researchMax: 0,
+    serviceTarget:  '12 WU',            serviceMin:  12, serviceMax:  12,
+    showResearch: false, baseline: 30
   },
   'educator': {
     label: 'Educator',
     note:  '4:4 load · 24 WU teaching · No research · 6 WU service',
     courses: [{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1},{credits:3,sections:1}],
-    // 4 fall + 4 spring = 8 courses
-    teachingTarget: '24 WU (4:4 load)',
-    researchTarget: 'N/A',
-    serviceTarget:  '6 WU (20%)',
-    showResearch: false,
-    baseline: 30
+    teachingTarget: '24 WU (4:4 load)', teachingMin: 24, teachingMax: 24,
+    researchTarget: 'N/A',              researchMin: 0,  researchMax: 0,
+    serviceTarget:  '6 WU',             serviceMin:  6,  serviceMax:  6,
+    showResearch: false, baseline: 30
   }
 };
 
@@ -1293,6 +1328,13 @@ function onAppointmentChange() {
   renderTeaching();
 }
 
+function targetStatus(wu, min, max) {
+  if(min === 0 && max === 0) return { label: 'N/A', color: 'var(--ink-faint)' };
+  if(wu < min) return { label: `${fmt(min - wu)} WU below target`, color: '#378ADD' };
+  if(wu > max) return { label: `${fmt(wu - max)} WU above target`, color: '#D85A30' };
+  return { label: 'within target range', color: 'var(--teal)' };
+}
+
 function renderSummary(){
   const appt = document.getElementById('fac-appt').value;
   const cfg  = APPT_CONFIG[appt];
@@ -1300,14 +1342,29 @@ function renderSummary(){
   const total = cfg ? (cfg.showResearch ? t+r+s : t+s) : t+r+s;
   const pct=n=>total>0?Math.round((n/total)*100):0;
 
-  const researchCard = cfg && !cfg.showResearch
-    ? `<div class="sum-card" style="opacity:0.4"><div class="sum-lbl">Research</div><div class="sum-val">N/A</div><div class="sum-sub">not applicable</div></div>`
-    : `<div class="sum-card"><div class="sum-lbl">Research</div><div class="sum-val">${fmt(r)}</div><div class="sum-sub">${pct(r)}% of total</div></div>`;
+  function sumCard(label, wuVal, pctVal, target, min, max, color) {
+    const status = cfg ? targetStatus(wuVal, min, max) : null;
+    const statusHtml = status
+      ? `<div style="font-size:11px;margin-top:4px;color:${status.color};font-family:'DM Mono',monospace;">${status.label}</div>`
+      : '';
+    return `<div class="sum-card">
+      <div class="sum-lbl">${label}</div>
+      <div class="sum-val">${fmt(wuVal)} <span style="font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink-light)">WU</span></div>
+      <div class="sum-sub">${pctVal}% of total${cfg ? ' · target: ' + target : ''}</div>
+      ${statusHtml}
+    </div>`;
+  }
+
+  const naCard = `<div class="sum-card" style="opacity:0.4">
+    <div class="sum-lbl">Research</div>
+    <div class="sum-val" style="font-size:1.2rem;color:var(--ink-light)">N/A</div>
+    <div class="sum-sub">not applicable</div>
+  </div>`;
 
   document.getElementById('sum-cards').innerHTML=`
-    <div class="sum-card"><div class="sum-lbl">Teaching</div><div class="sum-val">${fmt(t)}</div><div class="sum-sub">${pct(t)}% of total</div></div>
-    ${researchCard}
-    <div class="sum-card"><div class="sum-lbl">Service</div><div class="sum-val">${fmt(s)}</div><div class="sum-sub">${pct(s)}% of total</div></div>`;
+    ${sumCard('Teaching', t, pct(t), cfg?.teachingTarget||'15–18 WU', cfg?.teachingMin||15, cfg?.teachingMax||18, '#1D9E75')}
+    ${cfg && !cfg.showResearch ? naCard : sumCard('Research', r, pct(r), cfg?.researchTarget||'9–12 WU', cfg?.researchMin||9, cfg?.researchMax||12, '#378ADD')}
+    ${sumCard('Service', s, pct(s), cfg?.serviceTarget||'3–6 WU', cfg?.serviceMin||3, cfg?.serviceMax||6, '#D85A30')}`;
 
   document.getElementById('prog-bar').innerHTML=`
     <div class="prog-seg prog-t" style="width:${pct(t)}%"></div>
@@ -1315,21 +1372,17 @@ function renderSummary(){
     <div class="prog-seg prog-s" style="width:${pct(s)}%"></div>`;
 
   const diff = total - 30;
-  document.getElementById('baseline-note').textContent = diff===0?'at 30 WU baseline':diff>0?`+${fmt(diff)} above baseline`:`${fmt(Math.abs(diff))} below baseline`;
-
-  const tTarget = cfg ? cfg.teachingTarget : '15–18 WU';
-  const rTarget = cfg ? cfg.researchTarget : '9–12 WU';
-  const sTarget = cfg ? cfg.serviceTarget  : '3–6 WU';
+  document.getElementById('baseline-note').textContent = diff===0?'at 30 WU baseline':diff>0?`+${fmt(diff)} above 30 WU baseline`:`${fmt(Math.abs(diff))} below 30 WU baseline`;
 
   document.getElementById('sum-detail').innerHTML=`
     ${mkRow('Faculty', document.getElementById('fac-name').value || '—')}
     ${mkRow('Appointment', cfg ? cfg.label : '—')}
     ${mkRow('Academic year', document.getElementById('fac-ay').value || '—')}
     ${mkRow('Total WUs logged', fmt(total))}
-    ${mkRow('SoD annual baseline', '30')}
-    ${mkRow('Teaching target', tTarget)}
-    ${cfg && !cfg.showResearch ? '' : mkRow('Research target', rTarget)}
-    ${mkRow('Service target', sTarget)}`;
+    ${mkRow('SoD annual baseline', '30 WU')}
+    ${mkRow('Teaching', fmt(t) + ' WU · target: ' + (cfg?.teachingTarget||'15–18 WU'))}
+    ${cfg && !cfg.showResearch ? '' : mkRow('Research', fmt(r) + ' WU · target: ' + (cfg?.researchTarget||'9–12 WU'))}
+    ${mkRow('Service', fmt(s) + ' WU · target: ' + (cfg?.serviceTarget||'3–6 WU'))}`;
 }
 
 /* ── INIT ── */
